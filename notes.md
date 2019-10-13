@@ -66,3 +66,5 @@ Otherwise, it can't read all the NTFS permissions, so Ansible will complain abou
 
 Also, `umask 0022` will ensure any files created aren't writable by group or other.
 
+Okay, NOW nftables firewall: https://www.youtube.com/playlist?list=PLgC62UIBo6cJ-wrlZ5lbqY2Ts6IkPWNtY
+

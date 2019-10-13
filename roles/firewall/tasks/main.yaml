@@ -1,0 +1,33 @@
+---
+- name: Add firewall package
+  package:
+    name: nftables
+    state: present
+
+- name: Add firewall configuration
+  template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    mode: '0644'
+
+# The following three are the equivalent of
+# grep -Eo '^nf\w+' /proc/modules > /etc/modules-load.d/nftables.conf
+# from: https://wiki.archlinux.org/index.php/Nftables#Usage
+- name: Which modules are required by nftables
+  command: grep -Eo '^nf\w+'
+  args:
+    creates: /etc/modules-load.d/nftables.conf
+  register: nftables_modules
+
+# Block is used to make sure the when is checked first, and not on every pass of the loop
+- name: Add those modules to a load-list
+  block:
+    lineinfile:
+      line: "{{ item }}"
+      state: present
+      creates: yes
+    loop: "{{ nftables_modules.stdout_lines }}"
+    notify: reboot
+  when: nftables_modules is success
+
+...

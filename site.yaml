@@ -6,4 +6,5 @@
     - vars.yaml
   roles:
     - { role: ssh, tags: ['ssh'] }
+    - { role: firewall, tags: ['firewall'] }
 ...

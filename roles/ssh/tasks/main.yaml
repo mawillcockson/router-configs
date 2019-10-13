@@ -7,8 +7,6 @@
     state: present
     create: yes
     unsafe_writes: no
-  register: result
-  ignore_errors: True
 
 - name: Add primary administration user
   user:
@@ -17,8 +15,8 @@
       - ssh
       - sudo
     append: yes
+    shell: /bin/bash
     state: present
-  when: result is success
 
 - name: Ensure group sudo can sudo without password
   lineinfile:
@@ -27,7 +25,6 @@
     path: /etc/sudoers
     state: present
     validate: /usr/sbin/visudo -c -f %s
-  when: result is success
 
 - name: Update sshd_config
   template:
@@ -35,5 +32,4 @@
     dest: /etc/ssh/sshd_config
     mode: '0644'
   notify: restart sshd
-  when: result is success
 ...

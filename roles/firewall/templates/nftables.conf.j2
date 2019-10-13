@@ -1,0 +1,38 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+define ssh = 22
+
+table inet filter {
+    chain incoming {
+        type filter hook input priority 0;
+
+        # Allow from loopback
+        iifname lo accept;
+
+        # Allow established connections
+        # 'related' state catches things like ICMP replies to closed UDP ports
+        ct state established,related accept;
+
+        # Drop invalid connections
+        ct state invalid drop;
+
+        # Prevent ping floods
+        ip6 nexthdr icmpv6 type echo-request limit rate 2/second accept;
+        ip protocol icmp icmp type echo-request limit rate 2/second accept;
+
+        # Allow ssh
+        tcp dport $ssh inet accept;
+
+        policy drop;
+    }
+    chain forwarding {
+        type filter hook input priority 0;;
+        policy drop;
+    }
+    chain outgoing {
+        type filter hook input priority 0;
+        policy accept;
+    }
+}
