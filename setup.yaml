@@ -1,0 +1,13 @@
+---
+- name: Setup ssh on just-provisioned server
+  hosts: all
+  remote_user: root
+  vars_files:
+    - vars.yaml
+  roles:
+    - { role: ssh,  tags: ['ssh'] }
+  ignore_errors: True
+
+- name: Setup server
+  import_playbook: site.yaml
+...

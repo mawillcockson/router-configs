@@ -17,8 +17,8 @@ StrictModes yes
 MaxAuthTries 6
 MaxSessions 10
 
-AuthorizedKeysCommand none
-AuthorizedKeysCommandUser nobody
+#AuthorizedKeysCommand none
+#AuthorizedKeysCommandUser nobody
 
 PasswordAuthentication no
 PermitEmptyPasswords no
@@ -27,19 +27,8 @@ PubkeyAuthentication yes
 AuthorizedKeysFile	/etc/ssh/authorized_keys
 AuthorizedPrincipalsFile none
 
-# Kerberos options
-KerberosAuthentication no
-KerberosOrLocalPasswd no
-KerberosTicketCleanup yes
-KerberosGetAFSToken no
-
-# GSSAPI options
-GSSAPIAuthentication no
-GSSAPICleanupCredentials yes
-GSSAPIStrictAcceptorCheck yes
-GSSAPIKeyExchange no
-
-UsePAM no
+# PAM is required to SSH to locked accounts, like root and the user we're creating
+UsePAM yes
 
 # no default banner path
 Banner none
@@ -50,6 +39,19 @@ AcceptEnv LANG LC_*
 
 Subsystem	sftp	/usr/lib/openssh/sftp-server
 
+PrintMotd no
+PrintLastLog yes
+TCPKeepAlive yes
+PermitUserEnvironment no
+X11Forwarding no
+#X11DisplayOffset 10
+#X11UseLocalhost yes
+PermitTTY yes
+Compression delayed
+ClientAliveInterval 0
+ClientAliveCountMax 3
+UseDNS no
+
 AllowGroups ssh
 
 Match Group ssh
@@ -57,16 +59,4 @@ Match Group ssh
     AllowAgentForwarding yes
     AllowTcpForwarding yes
     GatewayPorts yes
-    X11Forwarding no
-    #X11DisplayOffset 10
-    #X11UseLocalhost yes
-    PermitTTY yes
-    PrintMotd no
-    PrintLastLog yes
-    TCPKeepAlive yes
-    PermitUserEnvironment no
-    Compression delayed
-    ClientAliveInterval 0
-    ClientAliveCountMax 3
-    UseDNS no
-    PermitTunnel  yes
+    PermitTunnel yes

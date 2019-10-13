@@ -1,28 +1,38 @@
 ---
 - name: Generate authorized_keys file
-  user: root
   lineinfile:
-    line: {{ ssh_key_pub }}
+    line: '{{ ssh_key_pub }}'
     path: /etc/ssh/authorized_keys
     mode: '0444'
     state: present
     create: yes
     unsafe_writes: no
+  register: result
   ignore_errors: True
 
 - name: Add primary administration user
   user:
-    name: {{ provision_username }}
+    name: '{{ provision_username }}'
     groups:
       - ssh
+      - sudo
     append: yes
     state: present
+  when: result is success
+
+- name: Ensure group sudo can sudo without password
+  lineinfile:
+    line: '%sudo ALL=(ALL:ALL) NOPASSWD: ALL'
+    regexp: '^%sudo ALL='
+    path: /etc/sudoers
+    state: present
+    validate: /usr/sbin/visudo -c -f %s
   when: result is success
 
 - name: Update sshd_config
   template:
     src: sshd_config.j2
-    dst: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
     mode: '0644'
   notify: restart sshd
   when: result is success

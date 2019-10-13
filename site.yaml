@@ -1,6 +1,9 @@
-- name: Configure a cloud router
-  hosts: vpn
+---
+- name: Setup server
+  hosts: all
+  remote_user: '{{ provision_username }}'
   vars_files:
     - vars.yaml
   roles:
-    - { role: ssh,  tags: ['ssh'] }
+    - { role: ssh, tags: ['ssh'] }
+...

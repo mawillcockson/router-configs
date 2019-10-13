@@ -53,3 +53,16 @@ and then populate the /etc/ssh/authorized_keys file, and then restart sshd.
 
 Taking lots of notes from https://github.com/cullum/dank-selfhosted
 
+Inside the WSL distro, you need a /etc/wsl.conf that has at least:
+
+```ini
+[automount]
+enabled = tue
+root = /mnt/
+options = "metadata"
+```
+
+Otherwise, it can't read all the NTFS permissions, so Ansible will complain about a world-writable directory.
+
+Also, `umask 0022` will ensure any files created aren't writable by group or other.
+
