@@ -46,3 +46,10 @@ This does not work completely, as Windows SSH can't do RemoteForward, and PuTTY 
 
 Okay, now a simple firewall. Try nftables?
 
+Well, let's first add the basic configuration for getting a just-built Hetzner server running.
+
+We need to first login as root on the first run, and copy over the ssh_config file,
+and then populate the /etc/ssh/authorized_keys file, and then restart sshd.
+
+Taking lots of notes from https://github.com/cullum/dank-selfhosted
+

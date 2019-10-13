@@ -1,0 +1,6 @@
+- name: Configure a cloud router
+  hosts: vpn
+  vars_files:
+    - vars.yaml
+  roles:
+    - { role: ssh,  tags: ['ssh'] }

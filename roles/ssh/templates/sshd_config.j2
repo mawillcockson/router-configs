@@ -1,0 +1,72 @@
+#	$OpenBSD: sshd_config,v 1.103 2018/04/09 20:41:22 tj Exp $
+
+Port 22
+AddressFamily any
+ListenAddress 0.0.0.0
+ListenAddress ::
+
+RekeyLimit default none
+
+# Logging
+SyslogFacility AUTH
+LogLevel INFO
+
+LoginGraceTime 2m
+PermitRootLogin no
+StrictModes yes
+MaxAuthTries 6
+MaxSessions 10
+
+AuthorizedKeysCommand none
+AuthorizedKeysCommandUser nobody
+
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+PubkeyAuthentication yes
+AuthorizedKeysFile	/etc/ssh/authorized_keys
+AuthorizedPrincipalsFile none
+
+# Kerberos options
+KerberosAuthentication no
+KerberosOrLocalPasswd no
+KerberosTicketCleanup yes
+KerberosGetAFSToken no
+
+# GSSAPI options
+GSSAPIAuthentication no
+GSSAPICleanupCredentials yes
+GSSAPIStrictAcceptorCheck yes
+GSSAPIKeyExchange no
+
+UsePAM no
+
+# no default banner path
+Banner none
+VersionAddendum none
+
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+Subsystem	sftp	/usr/lib/openssh/sftp-server
+
+AllowGroups ssh
+
+Match Group ssh
+    StreamLocalBindUnlink yes
+    AllowAgentForwarding yes
+    AllowTcpForwarding yes
+    GatewayPorts yes
+    X11Forwarding no
+    #X11DisplayOffset 10
+    #X11UseLocalhost yes
+    PermitTTY yes
+    PrintMotd no
+    PrintLastLog yes
+    TCPKeepAlive yes
+    PermitUserEnvironment no
+    Compression delayed
+    ClientAliveInterval 0
+    ClientAliveCountMax 3
+    UseDNS no
+    PermitTunnel  yes
