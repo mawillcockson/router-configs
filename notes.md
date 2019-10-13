@@ -31,3 +31,18 @@ python -m pipx ensurepath
 pipx install ansible
 ```
 
+Realized Asnible needs symlink support on the development machine.
+
+So, we'll use VSCode remote development, and develop on the remote machine!
+
+Easiest way seems to be to add the repository to the host, and work entirely remotely.
+
+Since I like code signing and the remote host will need access to my SSH keys on my card, I'll use:
+
+ - SSH agent forwarding: https://developer.github.com/v3/guides/using-ssh-agent-forwarding/
+ - GnuPG Agent Forwarding: https://wiki.gnupg.org/AgentForwarding
+
+This does not work completely, as Windows SSH can't do RemoteForward, and PuTTY can't seem to be able to do it with Unix sockets. There were some suggestions about using netcat or socat, but I just installed Debian-WSL instead.
+
+Okay, now a simple firewall. Try nftables?
+
