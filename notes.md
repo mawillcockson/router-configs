@@ -68,3 +68,19 @@ Also, `umask 0022` will ensure any files created aren't writable by group or oth
 
 Okay, NOW nftables firewall: https://www.youtube.com/playlist?list=PLgC62UIBo6cJ-wrlZ5lbqY2Ts6IkPWNtY
 
+The instructions in https://wiki.archlinux.org/index.php/Nftables#Usage advise to load kernal modules.
+
+The command, though, looks for already loaded kernel modules. We need the ones that aren't loaded, because a lot aren't loaded automatically. This pointed to where they are: https://unix.stackexchange.com/a/184880/235043
+
+So we need to find the modules, make sure they're loaded on boot, and then load them now. This finds the names:
+
+```bash
+find /lib/modules/$(uname -r) -type f -regextype posix-egrep \
+    -regex '.*/netfilter/nft[[:alnum:]_.]+$' \
+    -printf %f\\n \
+| grep -Eo "^[[:alnum:]_]+"
+```
+
+They need to go in /etc/modules-load.d/nftables.conf
+
+And then `modprobe` each module into the kernel, so we don't have to reboot.

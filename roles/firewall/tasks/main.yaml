@@ -10,24 +10,34 @@
     dest: /etc/nftables.conf
     mode: '0644'
 
-# The following three are the equivalent of
-# grep -Eo '^nf\w+' /proc/modules > /etc/modules-load.d/nftables.conf
-# from: https://wiki.archlinux.org/index.php/Nftables#Usage
+# The following three are required to ensure nftables has the necessary kernel modules loaded
+
+# We're being liberal here, and adding more than we need.
+# This comes at a speed penalty, but I figure it's negligible,
+# especially compared to the time-consuming task of figuring out
+# which ones are required or not.
 - name: Which modules are required by nftables
-  command: grep -Eo '^nf\w+'
+  shell: |
+    find /lib/modules/$(uname -r) -type f -regextype posix-egrep \
+      -regex '.*/netfilter/nf[[:alnum:]_.]+$' \
+      -printf %f\\n | \
+      grep -Eo '^[[:alnum:]_]+'
   args:
     creates: /etc/modules-load.d/nftables.conf
   register: nftables_modules
 
-# Block is used to make sure the when is checked first, and not on every pass of the loop
 - name: Add those modules to a load-list
-  block:
-    lineinfile:
-      line: "{{ item }}"
-      state: present
-      creates: yes
-    loop: "{{ nftables_modules.stdout_lines }}"
-    notify: reboot
+  lineinfile:
+    path: /etc/modules-load.d/nftables.conf
+    line: "{{ item }}"
+    state: present
+    create: yes
+  loop: "{{ nftables_modules.stdout_lines | default([]) }}"
   when: nftables_modules is success
 
+- name: Load modules
+  command: "modprobe {{ item }}"
+  become: True
+  loop: "{{ nftables_modules.stdout_lines | default([]) }}"
+  when: nftables_modules is success
 ...
