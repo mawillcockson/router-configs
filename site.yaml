@@ -8,4 +8,16 @@
     - { role: ssh, tags: ['ssh'] }
     - { role: firewall, tags: ['firewall'] }
     - { role: fail2ban, tags: ['fail2ban'] }
+    #- { role: unbound, tags: ['unbound'] }
+    #- { role: nsd, tags: ['nsd'] }
+    #- { role: wireguard, tags: ['wireguard'] }
+    #- { role: samba, tags: ['samba'] }
+
+  handlers:
+    - name: Reload nftables
+      become: yes
+      service:
+        name: nftables
+        state: reloaded
+      listen: "reload nftables"
 ...

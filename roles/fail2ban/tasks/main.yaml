@@ -6,13 +6,51 @@
   loop:
     - fail2ban
 
-- name: Configure fail2ban jail for ssh
-  template:
-    src: sshd-nftables.conf.j2
-    dest: /etc/fail2ban/jail.d/sshd-nftables.conf
+#- name: Configure fail2ban jail for ssh
+#  template:
+#    src: sshd-nftables.conf.j2
+#    dest: /etc/fail2ban/jail.d/sshd-nftables.conf
+#    owner: root
+#    group: root
+#    mode: "u=rw,g=r,o=r"
+#  notify: Restart fail2ban
+
+# On first run, we'll copy the fail.conf to another file
+# The copy module checksums files to see if they're different, so if it runs,
+# we know something's changed, so we run the configuration again
+- name: Copy fail2ban configuration 
+  copy:
+    src: /etc/fail2ban/jail.conf
+    dest: /etc/fail2ban/jail.conf.orig
+    remote_src: yes
+    force: yes
     owner: root
     group: root
     mode: "u=rw,g=r,o=r"
+  register: copy_fail2ban
+
+- name: Make local fail2ban configuration
+  shell: grep -Ev '^#' /etc/fail2ban/jail.conf > /etc/fail2ban/jail.local
+  when: copy_fail2ban is changed
+
+- name: Modify fail2ban configuration for ssh
+  lineinfile:
+    path: /etc/fail2ban/jail.local
+    line: "{{ item[0] }}"
+    regexp: "{{ item[1] }}"
+    state: present
+    create: no
+  loop:
+    - 
+      - "chain = {{ nftables_input_chain }}"
+      - chain = .*
+    - 
+      - banaction = nftables-multiport
+      - banaction = .*
+    - 
+      - banaction_allports = nftables-allports
+      - banaction_allports = .*
+  when: copy_fail2ban is changed
   notify: Restart fail2ban
 
 - name: Start fail2ban service

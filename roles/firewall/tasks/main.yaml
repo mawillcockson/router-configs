@@ -6,6 +6,7 @@
   loop:
     - nftables
     - conntrack
+  register: installed_firewall
 
 - name: Add firewall configuration
   template:
@@ -14,7 +15,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify: Reload nftables
+  notify: reload nftables
 
 - name: Add directory for additional firewall rulesets
   file:
@@ -36,18 +37,23 @@
       -regex '.*/netfilter/nf[[:alnum:]_.]+$' \
       -printf %f\\n | \
       grep -Eo '^[[:alnum:]_]+'
-  args:
-    creates: /etc/modules-load.d/nftables.conf
+  when: installed_firewall is changed
   register: nftables_modules
 
-- name: Add those modules to a load-list
+- name: Delete previous modules load list
+  file:
+    path: /etc/modules-load.d/nftables.conf
+    state: absent
+  when: installed_firewall is changed
+
+- name: Add modules to a load list
   lineinfile:
     path: /etc/modules-load.d/nftables.conf
     line: "{{ item }}"
     state: present
     create: yes
   loop: "{{ nftables_modules.stdout_lines | default([]) }}"
-  when: nftables_modules is success
+  when: nftables_modules is changed
   register: firewall_modules
 
 - name: Load modules

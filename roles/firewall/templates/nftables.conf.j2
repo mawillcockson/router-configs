@@ -2,18 +2,18 @@
 
 flush ruleset
 
-define ssh = 22
+define ssh = {{ ssh_port }}
 
 table inet filter {
 
     set open_ports {
         type inet_service;
         elements = {
-            ssh
+            $ssh
         }
     }
 
-    chain incoming {
+    chain {{ nftables_input_chain }} {
         type filter hook input priority 0; policy drop;
 
         # Allow from loopback (iif instead of iifname because lo always exists)
@@ -27,8 +27,15 @@ table inet filter {
         # Allow ssh
         tcp dport @open_ports ct state new accept;
 
+        # Accept IPv4 ICMP requests: http://shouldiblockicmp.com/
+        ip protocol icmp accept
+
+        # Accept all ipv6 ICMP, since IPv6 relies on ICMP (e.g. Neighbour Discovery)
+        ip6 nexthdr icmpv6 accept
+
         # Drop invalid connections
         ct state invalid counter drop;
+        counter comment "Dropped packets not matched"
     }
 
     chain forwarding {

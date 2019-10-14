@@ -108,3 +108,5 @@ Clear and concise instructions difficult to come by. From the jail.conf manual:
 ignoreip
     list of IPs not to ban. They can include a DNS resp. CIDR mask too. The option affects additionally to ignoreself (if true) and don't need to contain own DNS resp. IPs of the running host.
 ```
+
+The advice here seems to work: https://github.com/fail2ban/fail2ban/issues/1814#issuecomment-312016985
