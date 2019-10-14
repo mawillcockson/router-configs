@@ -98,3 +98,13 @@ Bssic firewall ruleset should:
 
 I've only set up the bare minimum for a firewall, less than described above, but I'll leave that for now, and move to fail2ban for SSH.
 
+Following: https://wiki.archlinux.org/index.php/Fail2ban
+
+Switched to: https://www.fail2ban.org/wiki/index.php/MANUAL_0_8
+
+Clear and concise instructions difficult to come by. From the jail.conf manual:
+
+```
+ignoreip
+    list of IPs not to ban. They can include a DNS resp. CIDR mask too. The option affects additionally to ignoreself (if true) and don't need to contain own DNS resp. IPs of the running host.
+```

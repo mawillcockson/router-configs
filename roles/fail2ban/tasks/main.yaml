@@ -1,0 +1,27 @@
+---
+- name: Install fail2ban packages
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - fail2ban
+
+- name: Configure fail2ban jail for ssh
+  template:
+    src: sshd-nftables.conf.j2
+    dest: /etc/fail2ban/jail.d/sshd-nftables.conf
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  notify: Restart fail2ban
+
+- name: Start fail2ban service
+  service:
+    name: fail2ban
+    state: started
+
+- name: Enable fail2ban service
+  service:
+    name: fail2ban
+    enabled: yes
+...

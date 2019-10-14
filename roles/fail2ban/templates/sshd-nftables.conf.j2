@@ -1,0 +1,7 @@
+[sshd-nftables]
+enabled = true
+filter = sshd
+port = ssh
+action = nftables-multiport
+backend = systemd
+ignoreself = true
