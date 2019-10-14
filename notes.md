@@ -84,3 +84,17 @@ find /lib/modules/$(uname -r) -type f -regextype posix-egrep \
 They need to go in /etc/modules-load.d/nftables.conf
 
 And then `modprobe` each module into the kernel, so we don't have to reboot.
+
+This video is decent: https://youtu.be/FXTRRwXi3b4?list=PLgC62UIBo6cJ-wrlZ5lbqY2Ts6IkPWNtY
+
+Bssic firewall ruleset should:
+
+ - Drop packets going in or out in private networks: https://en.wikipedia.org/wiki/Private_network . We'll deal with these when we get to the VPN.
+ - Drop all packets from https://en.wikipedia.org/wiki/Martian_packet keeping in mind https://tools.ietf.org/html/rfc6441 from https://en.wikipedia.org/wiki/Bogon_filtering
+ - Allow inet tcp/22
+ - Allow all on iface lo
+ - policy accept any outgoing packets not dropped and established,related packets
+ - Include rules to be added for each additional role needing them (e.g. unbound)
+
+I've only set up the bare minimum for a firewall, less than described above, but I'll leave that for now, and move to fail2ban for SSH.
+

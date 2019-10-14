@@ -1,14 +1,28 @@
 ---
-- name: Add firewall package
+- name: Add firewall packages
   package:
-    name: nftables
+    name: "{{ item }}"
     state: present
+  loop:
+    - nftables
+    - conntrack
 
 - name: Add firewall configuration
   template:
     src: nftables.conf.j2
     dest: /etc/nftables.conf
+    owner: root
+    group: root
     mode: '0644'
+  notify: Reload nftables
+
+- name: Add directory for additional firewall rulesets
+  file:
+    path: /etc/netfilter
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
 
 # The following three are required to ensure nftables has the necessary kernel modules loaded
 
@@ -34,10 +48,39 @@
     create: yes
   loop: "{{ nftables_modules.stdout_lines | default([]) }}"
   when: nftables_modules is success
+  register: firewall_modules
 
 - name: Load modules
   command: "modprobe {{ item }}"
   become: True
   loop: "{{ nftables_modules.stdout_lines | default([]) }}"
-  when: nftables_modules is success
+  when: firewall_modules is changed
+
+# From: https://github.com/Frzk/ansible-role-nftables/blob/master/tasks/main.yml
+- name: Disable conflicting services
+  become: yes
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  register: disable_service_result
+  failed_when: (disable_service_result is failed)
+               and ('Could not find the requested service' not in disable_service_result.msg)
+  loop:
+    - iptables
+
+# Start and enable nftables services
+- name: Start firewall
+  service:
+    name: "{{ item }}"
+    state: started
+  loop:
+    - nftables
+
+- name: Enable firewall on boot
+  service:
+    name: "{{ item }}"
+    enabled: yes
+  loop:
+    - nftables
 ...
